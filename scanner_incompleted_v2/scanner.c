@@ -339,7 +339,9 @@ Token *getToken(void)
     readChar();
     return token;
   case 34:
-    error(ERR_INVALIDCHARCONSTANT, lineNo, colNo - 2);
+    token = makeToken(TK_NONE, ln, cn +1);
+    error(ERR_INVALIDCHARCONSTANT, ln, cn + 1);
+    return token;
   case 35: // tokens begin with lpar, skip comments
     ln = lineNo;
     cn = colNo;
@@ -395,7 +397,7 @@ Token *getToken(void)
   case 40:
     token = makeToken(TK_NONE, lineNo, colNo - 1);
     error(ERR_ENDOFCOMMENT, lineNo, colNo);
-    // readChar();
+    readChar();
     return token;
   case 41:
     return makeToken(SB_LPAR, ln, cn);
@@ -404,7 +406,6 @@ Token *getToken(void)
     readChar();
     return token; // colNo
   case 43:
-    // state = 0;
     token = makeToken(TK_NONE, lineNo, colNo);
     error(ERR_INVALIDSYMBOL, lineNo, colNo);
     readChar();
