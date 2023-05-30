@@ -55,8 +55,8 @@ Token *readNumber(void)
 /* *********************************************************** */
 Token *getToken(void)
 {
-  // Token *token;
-  Token *token = (Token *)malloc(sizeof(Token));
+  Token *token;
+  // Token *token = (Token *)malloc(sizeof(Token));
   // Token *token = makeToken(TK_IDENT, lineNo, colNo);
 
   // printf("\nState = %d \n", state);
@@ -112,6 +112,7 @@ Token *getToken(void)
         state = 24;
         break;
       case CHAR_SEMICOLON:
+        // printf("\nSEMI case semi: %d-%d %d-%d\n", ln, cn, lineNo, colNo);
         state = 27;
         break;
       case CHAR_COLON:
@@ -154,7 +155,7 @@ Token *getToken(void)
       count++;
     }
     str[count] = '\0';
-    if(count > MAX_IDENT_LEN)
+    if (count > MAX_IDENT_LEN)
       error(ERR_IDENTTOOLONG, ln, cn);
     state = 4;
     return getToken();
@@ -177,6 +178,7 @@ Token *getToken(void)
   case 6:
     // TODO Keywords
     token = makeToken(checkKeyword(str), ln, cn);
+    // printf("\nKW case6: %d-%d %d-%d\n", ln, cn, lineNo, colNo);
     state = 0;
     return token;
   case 7:
@@ -194,24 +196,24 @@ Token *getToken(void)
   //   token = makeToken(TK_NUMBER, lineNo, colNo - 1);
   //   return token;
   case 9:
+    token = makeToken(SB_PLUS, lineNo, colNo);
     readChar();
-    // state = 0;
-    return makeToken(SB_PLUS, lineNo, colNo - 1);
+    return token;
   case 10:
     // TODO
+    token = makeToken(SB_MINUS, lineNo, colNo);
     readChar();
-    // state = 0;
-    return makeToken(SB_MINUS, lineNo, colNo - 1);
+    return token;
   case 11:
     // TODO
+    token = makeToken(SB_TIMES, lineNo, colNo);
     readChar();
-    // state = 0;
-    return makeToken(SB_TIMES, lineNo, colNo - 1);
+    return token;
   case 12:
     // TODO
+    token = makeToken(SB_SLASH, lineNo, colNo);
     readChar();
-    // state = 0;
-    return makeToken(SB_SLASH, lineNo, colNo - 1);
+    return token;
   case 13:
     readChar();
     if (charCodes[currentChar] == CHAR_EQ)
@@ -220,9 +222,9 @@ Token *getToken(void)
       state = 15;
     return getToken();
   case 14:
+    token = makeToken(SB_LE, lineNo, colNo);
     readChar();
-    // state = 0;
-    return makeToken(SB_LE, lineNo, colNo - 1);
+    return token;
   case 15:
     // state = 0;
     return makeToken(SB_LT, lineNo, colNo - 1);
@@ -236,18 +238,17 @@ Token *getToken(void)
     return getToken();
   case 17:
     // TODO
+    token = makeToken(SB_GE, lineNo, colNo);
     readChar();
-    // state = 0;
-    return makeToken(SB_GE, lineNo, colNo - 1);
+    return token;
   case 18:
     // TODO
-    // state = 0;
     return makeToken(SB_GT, lineNo, colNo - 1);
   case 19:
     // TODO
+    token = makeToken(SB_EQ, lineNo, colNo);
     readChar();
-    // state = 0;
-    return makeToken(SB_EQ, lineNo, colNo - 1);
+    return token;
   case 20:
     // TODO
     readChar();
@@ -257,9 +258,11 @@ Token *getToken(void)
       state = 22;
     return getToken();
   case 21:
+    token = makeToken(SB_NEQ, lineNo, colNo-1);
     readChar();
     // state = 0;
-    return makeToken(SB_NEQ, lineNo, colNo - 2);
+    // return makeToken(SB_NEQ, lineNo, colNo - 2);
+    return token;
   case 22:
     // state = 0;
     token = makeToken(TK_NONE, lineNo, colNo - 1);
@@ -267,9 +270,10 @@ Token *getToken(void)
     return token;
   case 23:
     // TODO
+    token = makeToken(SB_COMMA, lineNo, colNo);
     readChar();
     // state = 0;
-    return makeToken(SB_COMMA, lineNo, colNo - 1);
+    return token;
   case 24:
     // TODO
     readChar();
@@ -280,18 +284,21 @@ Token *getToken(void)
     return getToken();
   case 25:
     // TODO
+    token = makeToken(SB_RSEL, lineNo, colNo);
     readChar();
     // state = 0;
-    return makeToken(SB_RSEL, lineNo, colNo - 1);
+    // return makeToken(SB_RSEL, lineNo, colNo - 1);
+    return token;
   case 26:
     // TODO
-    // state = 0;
     return makeToken(SB_PERIOD, lineNo, colNo - 1);
   case 27:
     // TODO
-    readChar();
     // state = 0;
-    return makeToken(SB_SEMICOLON, lineNo, colNo - 1);
+    // printf("\nSEMI case 27: %d-%d %d-%d\n", ln, cn, lineNo, colNo);
+    token = makeToken(SB_SEMICOLON, lineNo, colNo);
+    readChar();
+    return token;
   case 28:
     // TODO
     readChar();
@@ -386,14 +393,16 @@ Token *getToken(void)
     state = 0;
     return getToken();
   case 40:
+    token = makeToken(TK_NONE, lineNo, colNo - 1);
     error(ERR_ENDOFCOMMENT, lineNo, colNo);
+    // readChar();
+    return token;
   case 41:
-    // state = 0;
-    return makeToken(SB_LPAR, ln, cn);    
+    return makeToken(SB_LPAR, ln, cn);
   case 42:
+    token = makeToken(SB_RPAR, lineNo, colNo);
     readChar();
-    // state = 0;
-    return makeToken(SB_RPAR, lineNo, colNo - 1); // colNo
+    return token; // colNo
   case 43:
     // state = 0;
     token = makeToken(TK_NONE, lineNo, colNo);
@@ -579,13 +588,16 @@ int scan(char *fileName)
 
 /******************************************************************/
 
-int main(int argc, char *argv[]) {
-  if (argc <= 1) {
+int main(int argc, char *argv[])
+{
+  if (argc <= 1)
+  {
     printf("scanner: no input file.\n");
     return -1;
   }
 
-  if (scan(argv[1]) == IO_ERROR) {
+  if (scan(argv[1]) == IO_ERROR)
+  {
     printf("Can\'t read input file!\n");
     return -1;
   }
