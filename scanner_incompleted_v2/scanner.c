@@ -20,7 +20,7 @@ extern int currentChar;
 extern CharCode charCodes[];
 int state;
 int ln, cn;
-char str[MAX_IDENT_LEN + 1];
+char str[MAX_IDENT_LEN];
 char c;
 int count; // count length of string
 
@@ -74,15 +74,15 @@ Token *getToken(void)
         state = 2;
         break;
       case CHAR_LETTER:
-        ln = lineNo;
-        cn = colNo;
+        // ln = lineNo;
+        // cn = colNo;
         state = 3;
         break;
       case CHAR_DIGIT:
         state = 7;
         break;
       case CHAR_PLUS:
-        state = 12;
+        state = 9;
         break;
       case CHAR_MINUS:
         state = 10;
@@ -136,7 +136,7 @@ Token *getToken(void)
   case 2:
     // TODO (Skip blanks)
     // skipBlank();
-    while (currentChar != -1 && charCodes[currentChar] == CHAR_SPACE)
+    while (currentChar != EOF && charCodes[currentChar] == CHAR_SPACE)
       readChar();
     state = 0;
     return getToken();
@@ -154,6 +154,8 @@ Token *getToken(void)
       count++;
     }
     str[count] = '\0';
+    if(count > MAX_IDENT_LEN)
+      error(ERR_IDENTTOOLONG, ln, cn);
     state = 4;
     return getToken();
   case 4:
@@ -170,7 +172,7 @@ Token *getToken(void)
     // TODO Identifiers
     token = makeToken(TK_IDENT, ln, cn);
     strcpy(token->string, str);
-    state = 0;
+    // state = 0;
     return token;
   case 6:
     // TODO Keywords
@@ -193,22 +195,22 @@ Token *getToken(void)
   //   return token;
   case 9:
     readChar();
-    state = 0;
+    // state = 0;
     return makeToken(SB_PLUS, lineNo, colNo - 1);
   case 10:
     // TODO
     readChar();
-    state = 0;
+    // state = 0;
     return makeToken(SB_MINUS, lineNo, colNo - 1);
   case 11:
     // TODO
     readChar();
-    state = 0;
+    // state = 0;
     return makeToken(SB_TIMES, lineNo, colNo - 1);
   case 12:
     // TODO
     readChar();
-    state = 0;
+    // state = 0;
     return makeToken(SB_SLASH, lineNo, colNo - 1);
   case 13:
     readChar();
@@ -219,10 +221,10 @@ Token *getToken(void)
     return getToken();
   case 14:
     readChar();
-    state = 0;
+    // state = 0;
     return makeToken(SB_LE, lineNo, colNo - 1);
   case 15:
-    state = 0;
+    // state = 0;
     return makeToken(SB_LT, lineNo, colNo - 1);
   case 16:
     // TODO
@@ -235,16 +237,16 @@ Token *getToken(void)
   case 17:
     // TODO
     readChar();
-    state = 0;
+    // state = 0;
     return makeToken(SB_GE, lineNo, colNo - 1);
   case 18:
     // TODO
-    state = 0;
+    // state = 0;
     return makeToken(SB_GT, lineNo, colNo - 1);
   case 19:
     // TODO
     readChar();
-    state = 0;
+    // state = 0;
     return makeToken(SB_EQ, lineNo, colNo - 1);
   case 20:
     // TODO
@@ -256,17 +258,17 @@ Token *getToken(void)
     return getToken();
   case 21:
     readChar();
-    state = 0;
+    // state = 0;
     return makeToken(SB_NEQ, lineNo, colNo - 2);
   case 22:
-    state = 0;
+    // state = 0;
     token = makeToken(TK_NONE, lineNo, colNo - 1);
     error(ERR_INVALIDSYMBOL, token->lineNo, token->colNo);
     return token;
   case 23:
     // TODO
     readChar();
-    state = 0;
+    // state = 0;
     return makeToken(SB_COMMA, lineNo, colNo - 1);
   case 24:
     // TODO
@@ -279,16 +281,16 @@ Token *getToken(void)
   case 25:
     // TODO
     readChar();
-    state = 0;
+    // state = 0;
     return makeToken(SB_RSEL, lineNo, colNo - 1);
   case 26:
     // TODO
-    state = 0;
+    // state = 0;
     return makeToken(SB_PERIOD, lineNo, colNo - 1);
   case 27:
     // TODO
     readChar();
-    state = 0;
+    // state = 0;
     return makeToken(SB_SEMICOLON, lineNo, colNo - 1);
   case 28:
     // TODO
@@ -305,11 +307,11 @@ Token *getToken(void)
     return makeToken(SB_ASSIGN, lineNo, colNo - 2);
   case 30:
     // TODO
-    state = 0;
+    // state = 0;
     return makeToken(SB_COLON, lineNo, colNo - 1);
   case 31:
     readChar();
-    if (currentChar == EOF || isprint(currentChar))
+    if (currentChar == EOF || !isprint(currentChar))
       state = 34;
     else
       state = 32;
@@ -323,7 +325,7 @@ Token *getToken(void)
       state = 34;
     return getToken();
   case 33:
-    state = 0;
+    // state = 0;
     token = makeToken(TK_CHAR, lineNo, colNo - 2);
     token->string[0] = c;
     token->string[1] = '\0';
@@ -353,9 +355,9 @@ Token *getToken(void)
 
   case 36:
     // TODO
-    state = 0;
+    // state = 0;
     readChar();
-    return makeToken(SB_LSEL, lineNo, colNo);
+    return makeToken(SB_LSEL, ln, cn);
   case 37:
     // TODO
     readChar();
@@ -386,14 +388,14 @@ Token *getToken(void)
   case 40:
     error(ERR_ENDOFCOMMENT, lineNo, colNo);
   case 41:
-    state = 0;
-    return makeToken(SB_LPAR, ln, cn);
+    // state = 0;
+    return makeToken(SB_LPAR, ln, cn);    
   case 42:
     readChar();
-    state = 0;
+    // state = 0;
     return makeToken(SB_RPAR, lineNo, colNo - 1); // colNo
   case 43:
-    state = 0;
+    // state = 0;
     token = makeToken(TK_NONE, lineNo, colNo);
     error(ERR_INVALIDSYMBOL, lineNo, colNo);
     readChar();
@@ -566,6 +568,7 @@ int scan(char *fileName)
   {
     printToken(token);
     free(token);
+    state = 0;
     token = getToken();
   }
 
