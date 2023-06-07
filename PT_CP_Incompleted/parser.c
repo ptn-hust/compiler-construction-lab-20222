@@ -147,15 +147,24 @@ void compileSubDecls(void)
 {
   assert("Parsing subroutines ....");
   // TODO
-  if (lookAhead->tokenType == KW_FUNCTION)
+  // if (lookAhead->tokenType == KW_FUNCTION)
+  // {
+  //   compileFuncDecl();
+  //   compileSubDecls();
+  // }
+  // else if (lookAhead->tokenType == KW_PROCEDURE)
+  // {
+  //   compileProcDecl();
+  //   compileSubDecls();
+  // }
+  while (lookAhead->tokenType == KW_FUNCTION || lookAhead->tokenType == KW_PROCEDURE)
   {
-    compileFuncDecl();
-    compileSubDecls();
-  }
-  else if (lookAhead->tokenType == KW_PROCEDURE)
-  {
-    compileProcDecl();
-    compileSubDecls();
+    if (lookAhead->tokenType == KW_FUNCTION)
+    {
+      compileFuncDecl();
+    }
+    else
+      compileProcDecl();
   }
   assert("Subroutines parsed ....");
 }
@@ -529,17 +538,17 @@ void compileExpression(void)
   // TODO
   switch (lookAhead->tokenType)
   {
-    case SB_PLUS:
-      eat(SB_PLUS);
-      compileExpression2();
-      break;
-    case SB_MINUS:
-      eat(SB_MINUS);
-      compileExpression2();
-      break;
-    default:
-      compileExpression2();
-      break;
+  case SB_PLUS:
+    eat(SB_PLUS);
+    compileExpression2();
+    break;
+  case SB_MINUS:
+    eat(SB_MINUS);
+    compileExpression2();
+    break;
+  default:
+    compileExpression2();
+    break;
   }
   assert("Expression parsed");
 }
@@ -636,31 +645,31 @@ void compileFactor(void)
   // TODO
   switch (lookAhead->tokenType)
   {
-    case TK_NUMBER:
-      eat(TK_NUMBER);
-      break;
-    case TK_CHAR:
-      eat(TK_CHAR);
-      break;
-    case TK_IDENT:
-      eat(TK_IDENT);
-      if(lookAhead->tokenType == SB_LSEL)
-      {
-        compileIndexes();
-      }
-      else if(lookAhead->tokenType == SB_LPAR)
-      {
-        compileArguments();
-      }
-      break;
-    case SB_LPAR:
-      eat(SB_LPAR);
-      compileExpression();
-      eat(SB_RPAR);
-      break;
-    default:
-      error(ERR_INVALIDFACTOR, lookAhead->lineNo, lookAhead->colNo);
-      break;
+  case TK_NUMBER:
+    eat(TK_NUMBER);
+    break;
+  case TK_CHAR:
+    eat(TK_CHAR);
+    break;
+  case TK_IDENT:
+    eat(TK_IDENT);
+    if (lookAhead->tokenType == SB_LSEL)
+    {
+      compileIndexes();
+    }
+    else if (lookAhead->tokenType == SB_LPAR)
+    {
+      compileArguments();
+    }
+    break;
+  case SB_LPAR:
+    eat(SB_LPAR);
+    compileExpression();
+    eat(SB_RPAR);
+    break;
+  default:
+    error(ERR_INVALIDFACTOR, lookAhead->lineNo, lookAhead->colNo);
+    break;
   }
 }
 
