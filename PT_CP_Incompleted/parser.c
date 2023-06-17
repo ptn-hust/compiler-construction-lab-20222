@@ -147,16 +147,6 @@ void compileSubDecls(void)
 {
   assert("Parsing subroutines ....");
   // TODO
-  // if (lookAhead->tokenType == KW_FUNCTION)
-  // {
-  //   compileFuncDecl();
-  //   compileSubDecls();
-  // }
-  // else if (lookAhead->tokenType == KW_PROCEDURE)
-  // {
-  //   compileProcDecl();
-  //   compileSubDecls();
-  // }
   while (lookAhead->tokenType == KW_FUNCTION || lookAhead->tokenType == KW_PROCEDURE)
   {
     if (lookAhead->tokenType == KW_FUNCTION)
@@ -386,6 +376,8 @@ void compileStatement(void)
     // EmptySt needs to check FOLLOW tokens
   case SB_SEMICOLON:
   case KW_END:
+    // eat(KW_END);
+    // compileStatements2();
   case KW_ELSE:
     break;
     // Error occurs
@@ -412,7 +404,7 @@ void compileAssignSt(void)
     compileExpression();
     break;
   default:
-    error(ERR_INVALIDSTATEMENT, lookAhead->lineNo, lookAhead->colNo);
+    // error(ERR_INVALIDSTATEMENT, lookAhead->lineNo, lookAhead->colNo);
     break;
   }
   assert("Assign statement parsed ....");
@@ -496,13 +488,27 @@ void compileArguments(void)
 
 void compileArguments2(void)
 {
-  // TODO
+  // switch (lookAhead->tokenType)
+  // {
+  // case SB_COMMA:
+  //   eat(SB_COMMA);
+  //   compileExpression();
+  //   compileArguments2();
+  //   break;
+  // case SB_RPAR:
+  //   break;
+  // default:
+  //   error(ERR_INVALIDARGUMENTS, lookAhead->lineNo, lookAhead->colNo);
+  //   break;
+  // }
   if (lookAhead->tokenType == SB_COMMA)
   {
     eat(SB_COMMA);
     compileExpression();
     compileArguments2();
   }
+  else if (lookAhead->tokenType != SB_RPAR)
+    error(ERR_INVALIDARGUMENTS, lookAhead->lineNo, lookAhead->colNo);
 }
 
 void compileCondition(void)
